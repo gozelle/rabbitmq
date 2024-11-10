@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gozelle/amqp"
-	"rabbitmq/exchange"
-	"rabbitmq/message"
-	"rabbitmq/queue"
+	"github.com/gozelle/rabbitmq/exchange"
+	"github.com/gozelle/rabbitmq/message"
+	"github.com/gozelle/rabbitmq/queue"
 )
 
 func WithExchange(e *exchange.Exchange) Option {
@@ -52,13 +52,13 @@ func (p Producer) Close() {
 }
 
 func (p Producer) Publish(m *message.Message) (err error) {
-	
+
 	data, err := json.Marshal(m.Value())
 	if err != nil {
 		err = fmt.Errorf("marshal message value error: %s", err)
 		return
 	}
-	
+
 	contentType := "text/plain"
 	if m.ContentType() != "" {
 		contentType = m.ContentType()
@@ -67,12 +67,12 @@ func (p Producer) Publish(m *message.Message) (err error) {
 	if m.Persistent() {
 		deliveryMode = amqp.Persistent
 	}
-	
+
 	ex := p.exchange
 	if m.Exchange() != nil {
 		ex = *m.Exchange()
 	}
-	
+
 	err = p.ch.Publish(
 		ex,
 		m.RouteKey(),
@@ -88,6 +88,6 @@ func (p Producer) Publish(m *message.Message) (err error) {
 		err = fmt.Errorf("publish message error: %s", err)
 		return
 	}
-	
+
 	return
 }

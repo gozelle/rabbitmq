@@ -3,13 +3,13 @@ package rabbitmq_test
 import (
 	"fmt"
 	"github.com/gozelle/amqp"
+	"github.com/gozelle/rabbitmq"
+	"github.com/gozelle/rabbitmq/consumer"
+	"github.com/gozelle/rabbitmq/exchange"
+	"github.com/gozelle/rabbitmq/message"
+	"github.com/gozelle/rabbitmq/producer"
+	"github.com/gozelle/rabbitmq/queue"
 	"github.com/gozelle/testify/require"
-	"rabbitmq"
-	"rabbitmq/consumer"
-	"rabbitmq/exchange"
-	"rabbitmq/message"
-	"rabbitmq/producer"
-	"rabbitmq/queue"
 	"testing"
 )
 
@@ -35,7 +35,7 @@ func TestProducer(t *testing.T) {
 		),
 	)
 	require.NoError(t, err)
-	
+
 	err = p.Publish(message.NewMessage(Message{Id: 123}).WitPersistent(true))
 	require.NoError(t, err)
 }
@@ -46,7 +46,7 @@ func TestConsumer(t *testing.T) {
 		consumer.WithQueue("test_exchange_q1"), // 指定消费的队列
 	)
 	require.NoError(t, err)
-	
+
 	err = c.Consume(func(message *Message) error {
 		fmt.Println(message)
 		return nil

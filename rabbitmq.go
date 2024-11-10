@@ -3,8 +3,8 @@ package rabbitmq
 import (
 	"fmt"
 	"github.com/gozelle/amqp"
-	"rabbitmq/consumer"
-	"rabbitmq/producer"
+	"github.com/gozelle/rabbitmq/consumer"
+	"github.com/gozelle/rabbitmq/producer"
 )
 
 func NewRabbitMQ[T any](addr string) *RabbitMQ[T] {
@@ -50,22 +50,22 @@ func (r RabbitMQ[T]) NewConsumer(options ...consumer.Option) (p *consumer.Consum
 }
 
 func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Producer, err error) {
-	
+
 	c := &producer.Config{}
 	for _, v := range options {
 		v(c)
 	}
-	
+
 	conn, err := r.openConn()
 	if err != nil {
 		return
 	}
-	
+
 	ch, err := r.openChannel(conn)
 	if err != nil {
 		return
 	}
-	
+
 	if c.Exchange() == nil {
 		err = fmt.Errorf("expect exchange define use WithExchange")
 		return
@@ -83,7 +83,7 @@ func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Produc
 		err = fmt.Errorf("exchange declare error: %s", err)
 		return
 	}
-	
+
 	for _, v := range c.Queues() {
 		var vv amqp.Queue
 		vv, err = ch.QueueDeclare(
@@ -98,7 +98,7 @@ func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Produc
 			err = fmt.Errorf("queue declare error: %s", err)
 			return
 		}
-		
+
 		err = ch.QueueBind(
 			vv.Name,
 			v.BindKey(),
@@ -111,8 +111,8 @@ func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Produc
 			return
 		}
 	}
-	
+
 	p = producer.NewProducer(conn, ch, c.Exchange().Name())
-	
+
 	return
 }
