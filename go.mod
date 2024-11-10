@@ -1,4 +1,4 @@
-module rabbitmq
+module github.com/gozelle/rabbitmq
 
 go 1.20
 
