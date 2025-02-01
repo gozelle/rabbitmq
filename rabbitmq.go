@@ -49,7 +49,7 @@ func (r RabbitMQ[T]) NewConsumer(options ...consumer.Option) (p *consumer.Consum
 	return
 }
 
-func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Producer, err error) {
+func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Producer[T], err error) {
 
 	c := &producer.Config{}
 	for _, v := range options {
@@ -112,7 +112,7 @@ func (r RabbitMQ[T]) NewProducer(options ...producer.Option) (p *producer.Produc
 		}
 	}
 
-	p = producer.NewProducer(conn, ch, c.Exchange().Name())
+	p = producer.NewProducer[T](conn, ch, c.Exchange().Name())
 
 	return
 }

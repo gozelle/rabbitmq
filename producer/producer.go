@@ -36,23 +36,27 @@ func (c Config) Queues() []*queue.Queue {
 	return c.queues
 }
 
-func NewProducer(conn *amqp.Connection, ch *amqp.Channel, exchange string) *Producer {
-	return &Producer{conn: conn, ch: ch, exchange: exchange}
+func NewProducer[T any](conn *amqp.Connection, ch *amqp.Channel, exchange string) *Producer[T] {
+	return &Producer[T]{
+		conn:     conn,
+		ch:       ch,
+		exchange: exchange,
+	}
 }
 
-type Producer struct {
+type Producer[T any] struct {
 	conn     *amqp.Connection
 	ch       *amqp.Channel
 	exchange string
 }
 
-func (p Producer) Close() {
+func (p Producer[T]) Close() {
 	_ = p.ch.Close()
 	_ = p.conn.Close()
 }
 
-func (p Producer) Publish(m *message.Message) (err error) {
-
+func (p Producer[T]) Publish(item T) (err error) {
+	m := message.NewMessage(item)
 	data, err := json.Marshal(m.Value())
 	if err != nil {
 		err = fmt.Errorf("marshal message value error: %s", err)
